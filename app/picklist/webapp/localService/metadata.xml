@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="4.0" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+    <edmx:Reference Uri="https://oasis-tcs.github.io/odata-vocabularies/vocabularies/Org.OData.Core.V1.xml">
+        <edmx:Include Alias="Core" Namespace="Org.OData.Core.V1"/>
+    </edmx:Reference>
+    <edmx:DataServices>
+        <Schema Namespace="OdataService" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+            <EntityContainer Name="EntityContainer">
+                <EntitySet Name="PickListV2" EntityType="OdataService.PickListV2"/>
+                <ActionImport Name="SavePickListV2MultiProc" Action="OdataService.SavePickListV2MultiProc"/>
+                <ActionImport Name="DeletePickListV2Proc" Action="OdataService.DeletePickListV2Proc"/>
+            </EntityContainer>
+            <EntityType Name="PickListV2">
+                <Key>
+                    <PropertyRef Name="mdfSystemRecordId"/>
+                </Key>
+                <Property Name="mdfSystemRecordId" Type="Edm.String" MaxLength="128" Nullable="false"/>
+                <Property Name="picklistId" Type="Edm.String" MaxLength="128"/>
+                <Property Name="cudKey" Type="Edm.String" MaxLength="1"/>
+                <Property Name="Record" Type="Edm.String"/>
+                <Property Name="createdBy" Type="Edm.String"/>
+                <Property Name="lastModifiedBy" Type="Edm.String"/>
+                <Property Name="createdDateTime" Type="Edm.DateTimeOffset"/>
+                <Property Name="lastModifiedDateTime" Type="Edm.DateTimeOffset"/>
+            </EntityType>
+            <ComplexType Name="PickListV2Headers">
+                <Property Name="mdfSystemRecordId" Type="Edm.String" MaxLength="128"/>
+                <Property Name="picklistId" Type="Edm.String" MaxLength="128"/>
+                <Property Name="cudKey" Type="Edm.String" MaxLength="1"/>
+                <Property Name="Record" Type="Edm.String"/>
+            </ComplexType>
+            <ComplexType Name="PickListV2HeadersOutput">
+                <Property Name="mdfSystemRecordId" Type="Edm.String" MaxLength="128"/>
+                <Property Name="picklistId" Type="Edm.String" MaxLength="128"/>
+                <Property Name="cudKey" Type="Edm.String" MaxLength="1"/>
+            </ComplexType>
+            <Action Name="SavePickListV2MultiProc" IsBound="false">
+                <Parameter Name="PickListV2" Type="Collection(OdataService.PickListV2Headers)" Nullable="false"/>
+                <ReturnType Type="Collection(OdataService.PickListV2HeadersOutput)" Nullable="false"/>
+            </Action>
+            <Action Name="DeletePickListV2Proc" IsBound="false">
+                <ReturnType Type="Edm.Boolean"/>
+            </Action>
+            <Annotations Target="OdataService.PickListV2/createdBy">
+                <Annotation Term="Core.Computed" Bool="true"/>
+            </Annotations>
+            <Annotations Target="OdataService.PickListV2/lastModifiedBy">
+                <Annotation Term="Core.Computed" Bool="true"/>
+            </Annotations>
+            <Annotations Target="OdataService.PickListV2/createdDateTime">
+                <Annotation Term="Core.Computed" Bool="true"/>
+            </Annotations>
+            <Annotations Target="OdataService.PickListV2/lastModifiedDateTime">
+                <Annotation Term="Core.Computed" Bool="true"/>
+            </Annotations>
+        </Schema>
+    </edmx:DataServices>
+</edmx:Edmx>

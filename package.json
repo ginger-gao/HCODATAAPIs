@@ -1,0 +1,91 @@
+{
+    "name": "HCODATAAPIs",
+    "version": "1.0.0",
+    "description": "A simple CAP project.",
+    "repository": "<Add your repository here>",
+    "license": "UNLICENSED",
+    "private": true,
+    "dependencies": {
+        "@sap/cds": "^6",
+        "@sap/hdbext": "^7.7.0",
+        "express": "^4",
+        "hdb": "^0.19.0",
+        "sap-hdbext-promisfied": "^2.202201.1"
+    },
+    "devDependencies": {
+        "@sap/hdi-deploy": "^4.2.3",
+        "@sap/ux-specification": "^1.102.10",
+        "rimraf": "^3.0.2"
+    },
+    "scripts": {
+        "start": "cds run",
+        "watch-picklist": "cds watch --open picklist/webapp/index.html?sap-ui-xx-viewCache=false",
+        "undeploy": "cf undeploy HCODATAAPIs --delete-services --delete-service-keys --delete-service-brokers",
+        "build": "rimraf resources mta_archives && mbt build --mtar archive",
+        "deploy": "cf deploy mta_archives/archive.mtar --retries 1",
+        "watch-risks": "cds watch --open risks/webapp/index.html?sap-ui-xx-viewCache=false"
+    },
+    "engines": {
+        "node": "^16.15"
+    },
+    "eslintConfig": {
+        "extends": "eslint:recommended",
+        "env": {
+            "es2020": true,
+            "node": true,
+            "jest": true,
+            "mocha": true
+        },
+        "globals": {
+            "SELECT": true,
+            "INSERT": true,
+            "UPDATE": true,
+            "DELETE": true,
+            "CREATE": true,
+            "DROP": true,
+            "CDL": true,
+            "CQL": true,
+            "CXL": true,
+            "cds": true
+        },
+        "rules": {
+            "no-console": "off",
+            "require-atomic-updates": "off"
+        }
+    },
+    "cds": {
+        "requires": {
+            "db": {
+                "kind": "sql"
+            },
+            "uaa": {
+                "kind": "xsuaa",
+                "credentials": {}
+            },
+            "auth": {
+                "kind": "basic-auth",
+                "users": {
+                    "cpi_integration": {
+                        "password": "Sap12345",
+                        "roles": [
+                            "admin",
+                            "authenticated-user"
+                        ]
+                    }
+                }
+            },
+            "[production]": {
+                "db": {
+                    "kind": "hana-cloud"
+                }
+            }
+        },
+        "hana": {
+            "deploy-format": "hdbtable"
+        }
+    },
+    "sapux": [
+        "app/picklist",
+        "app/risks"
+    ]
+}

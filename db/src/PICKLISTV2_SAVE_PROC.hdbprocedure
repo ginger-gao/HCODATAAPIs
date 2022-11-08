@@ -1,0 +1,68 @@
+PROCEDURE PICKLISTV2_SAVE_PROC (
+    IN  I_TABLE TABLE(PICKLISTID NVARCHAR(128),
+                     MDFSYSTEMRECORDID NVARCHAR(128),
+                     CUDKEY NVARCHAR(1),
+                     RECORD NCLOB              
+    ),
+    OUT O_TABLE TABLE(PICKLISTID NVARCHAR(128),
+                      MDFSYSTEMRECORDID NVARCHAR(128),
+                      CUDKEY NVARCHAR(1)               
+    )
+    
+)
+LANGUAGE SQLSCRIPT
+SQL SECURITY INVOKER 
+
+AS
+BEGIN
+
+    DECLARE v_cnt BIGINT;
+
+    SELECT COUNT(*)
+    INTO   v_cnt
+    FROM   :I_TABLE
+    ;
+
+    O_TABLE_NEW =   SELECT  A.PICKLISTID
+                        ,A.MDFSYSTEMRECORDID
+                        ,A.CUDKEY
+                        ,A.RECORD
+                FROM    :I_TABLE A
+                LEFT OUTER JOIN PICKLISTV2 B
+                ON A.MDFSYSTEMRECORDID = B.MDFSYSTEMRECORDID
+                WHERE B.MDFSYSTEMRECORDID IS NULL
+                WITH HINT (NO_INLINE)
+                ;
+
+    O_TABLE_OLD =   SELECT  A.PICKLISTID
+                        ,A.MDFSYSTEMRECORDID
+                        ,A.CUDKEY
+                        ,A.RECORD
+                FROM    :I_TABLE A
+                INNER JOIN PICKLISTV2 B
+                ON A.MDFSYSTEMRECORDID = B.MDFSYSTEMRECORDID         
+                WITH HINT (NO_INLINE)
+                ;
+
+    INSERT INTO PICKLISTV2(PICKLISTID,MDFSYSTEMRECORDID,CUDKEY,RECORD,CREATEDDATETIME,LASTMODIFIEDDATETIME,CREATEDBY,LASTMODIFIEDBY)   
+    SELECT PICKLISTID, MDFSYSTEMRECORDID, CUDKEY, RECORD, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, CURRENT_USER, CURRENT_USER FROM :O_TABLE_NEW
+    ;
+
+	IF NOT IS_EMPTY(:O_TABLE_OLD) THEN
+        MERGE INTO PICKLISTV2 A USING :O_TABLE_OLD B 
+            ON A.MDFSYSTEMRECORDID = B.MDFSYSTEMRECORDID
+        WHEN MATCHED THEN UPDATE SET A.PICKLISTID = B.PICKLISTID, A.RECORD = B.RECORD, A.CUDKEY = B.CUDKEY, A.LASTMODIFIEDDATETIME = CURRENT_TIMESTAMP, A.LASTMODIFIEDBY = CURRENT_USER
+        ;
+    END IF;
+
+    O_TABLE =  SELECT  PICKLISTID
+                        ,MDFSYSTEMRECORDID 
+                        ,CUDKEY
+                FROM    :O_TABLE_OLD
+               UNION ALL
+               SELECT  PICKLISTID
+                        ,MDFSYSTEMRECORDID
+                        ,CUDKEY
+                FROM    :O_TABLE_NEW 
+            ;                
+END
